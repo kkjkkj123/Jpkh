@@ -1,0 +1,91 @@
+-- Variables
+local scriptEnabled = false
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BladeBallAutoGui - JP dos ScriptsHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 180, 0, 50)
+ToggleButton.Position = UDim2.new(0, 10, 0, 10)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.TextColor3 = Color3.new(1,1,1)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextSize = 20
+ToggleButton.Text = "JP dos ScriptsHub: Turn ON"
+ToggleButton.Parent = ScreenGui
+
+-- Helper Mouse1Click simulation (works in some Roblox exploits)
+local function Mouse1Click()
+    -- Try to fire Mouse1Down and Mouse1Up, or use VirtualInputManager if possible
+    local virtualUser = game:GetService('VirtualUser')
+    virtualUser:CaptureController()
+    virtualUser:ClickButton1(Vector2.new())
+end
+
+-- Auto Rebate function
+local function autoRebate()
+    while scriptEnabled do
+        Mouse1Click()
+        wait(0.5)
+    end
+end
+
+-- Auto Win function (simple teleport example)
+local function autoWin()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- Ajuste para a posição de vitória no jogo
+    end
+end
+
+-- Threads for features
+local autoRebateThread
+local autoClickThread
+local autoWinThread
+
+local function startScript()
+    scriptEnabled = true
+    ToggleButton.Text = "JP dos ScriptsHub: Turn OFF"
+
+    autoRebateThread = coroutine.create(function()
+        while scriptEnabled do
+            Mouse1Click()
+            wait(0.5)
+        end
+    end)
+    coroutine.resume(autoRebateThread)
+
+    autoClickThread = coroutine.create(function()
+        while scriptEnabled do
+            Mouse1Click()
+            wait(0.001)
+        end
+    end)
+    coroutine.resume(autoClickThread)
+
+    autoWinThread = coroutine.create(function()
+        while scriptEnabled do
+            autoWin()
+            wait(1)
+        end
+    end)
+    coroutine.resume(autoWinThread)
+end
+
+local function stopScript()
+    scriptEnabled = false
+    ToggleButton.Text = "JP dos ScriptsHub: Turn ON"
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    if scriptEnabled then
+        stopScript()
+    else
+        startScript()
+    end
+end)
